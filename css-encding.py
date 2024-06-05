@@ -3,7 +3,7 @@ import os
 import base64
 
 css_file_path = 'styles.css'
-new_css_file_path = 'update_styles.css'
+new_css_file_path = 'styles.css'
 
 with open(css_file_path, 'r') as css_file:
     css_content = css_file.read()
