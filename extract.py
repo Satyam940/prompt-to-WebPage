@@ -1,6 +1,7 @@
 
 import re
-import base64
+from bs4 import BeautifulSoup, Comment
+
 
 html_content= '''
 
@@ -44,17 +45,53 @@ Explore Menus" property=twitter:description><meta content=https://assets.api.gam
 
 '''
 
-# Extract CSS from <style> tags
+new_html_file_path = 'updated_index.html'
+
+
+
+
+
+
 style_pattern = re.compile(r'<style[^>]*>(.*?)</style>', re.DOTALL)
+
+# Extract CSS content from HTML
 css_content = "\n".join(style_pattern.findall(html_content))
 
 # Write CSS to a new file
-with open('styles.css', 'w',encoding='utf-8') as css_file:
+with open('styles.css', 'w', encoding='utf-8') as css_file:
     css_file.write(css_content)
 
 # Remove <style> tags from HTML
 html_content = re.sub(style_pattern, '', html_content)
 
+
+
+
+
+
+
+soup = BeautifulSoup(html_content, 'html.parser')
+
+# Remove all meta tags from the parsed HTML
+for meta_tag in soup.find_all('meta'):
+    meta_tag.extract()
+
+for script in soup.find_all('script'):
+    script.extract()
+
+for comment in soup.find_all(text=lambda text: isinstance(text, Comment)):
+    comment.extract()
+
+gamma_a_tags = soup.find_all('a', href=lambda href: href and 'gamma' in href)
+
+# Remove all <a> tags with href containing "gamma"
+for tag in gamma_a_tags:
+    tag.decompose()
+
+updated_html_content = str(soup)
 # Write modified HTML to a new file
-with open('index.html', 'w' ,encoding='utf-8') as html_file:
-    html_file.write(html_content)
+
+with open(new_html_file_path, 'w', encoding='utf-8') as html_file:
+    html_file.write(updated_html_content)
+
+print(f"Updated HTML content written to '{new_html_file_path}'.")
